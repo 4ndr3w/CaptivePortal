@@ -11,15 +11,23 @@ function AccessLevel(level, friendlyName)
 	{
 		for ( i = 0; i < this.accessList.length; i++ )
 		{
-			if ( this.accessList[i].search(url) )
+			if ( this.accessList[i].search(url) != -1 )
+			{
+				console.log(url+" matches "+this.accessList[i]);
 				return !this.allowUnknown;
+			}
 		}
 		return this.allowUnknown;
 	}
 	
 	this.addURL = function(regex)
 	{
-		this.accessList.push(url);
+		this.accessList.push(regex);
+	}
+	
+	this.getAccessList = function()
+	{
+		return this.accessList;
 	}
 	
 	this.setAllowUnknown = function(state)
@@ -48,6 +56,7 @@ function addAccessLevel(level)
 {
 	level = new AccessLevel(level);
 	accessLevels.push(level);
+	return level;
 }
 
 
@@ -73,7 +82,7 @@ function Client(IP, accessLevel, expire)
 	this.changeAccessLevel = function(level)
 	{
 		this.myAccessLevel = getAccessLevel(level);
-		console.log("Access level of "+this.getIP+" is now at "+level);
+		console.log("Access level of "+this.getIP()+" is now at "+level);
 	}
 	
 	this.handleRequest = function(URL)
@@ -96,11 +105,13 @@ function getClient(IP)
 {
 	for ( i = 0; i < clientList.length; i++ )
 	{
-		if ( clientList.getIP() == IP )
+		if ( clientList[i].getIP() == IP )
 			return clientList[i];
 	}
 	client = new Client(IP, 0);
 	clientList.push(client);
 	return client;
 }
-
+exports.getClient = getClient;
+exports.addAccessLevel = addAccessLevel;
+exports.getAccessLevel = getAccessLevel;
