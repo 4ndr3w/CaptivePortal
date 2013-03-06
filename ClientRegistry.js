@@ -13,7 +13,6 @@ function AccessLevel(level, friendlyName)
 		{
 			if ( this.accessList[i].search(url) != -1 )
 			{
-				console.log(url+" matches "+this.accessList[i]);
 				return !this.allowUnknown;
 			}
 		}
@@ -39,6 +38,11 @@ function AccessLevel(level, friendlyName)
 	{
 		return this.level;
 	}
+	
+	this.getAPIData = function()
+	{
+		return {accessList:this.accessList, level:this.level, friendlyName:this.friendlyName};
+	}
 }
 accessLevels.push(new AccessLevel(0, "Unauthenticated"));
 
@@ -52,13 +56,17 @@ function getAccessLevel(level)
 	return accessLevels[0];
 }
 
-function addAccessLevel(level)
+function addAccessLevel(level, name)
 {
-	level = new AccessLevel(level);
+	level = new AccessLevel(level, name);
 	accessLevels.push(level);
 	return level;
 }
 
+function getAccessLevels()
+{
+	return accessLevels;
+}
 
 function Client(IP, accessLevel, expire)
 {
@@ -99,6 +107,11 @@ function Client(IP, accessLevel, expire)
 	{
 		return this.IP;
 	}
+	
+	this.getAPIData = function()
+	{
+		return {ip:IP, accessLevel:this.myAccessLevel.getAPIData()};
+	}
 }
 
 function getClient(IP)
@@ -112,6 +125,19 @@ function getClient(IP)
 	clientList.push(client);
 	return client;
 }
+
+function getClientAPIData()
+{
+	output = [];
+	for ( i = 0; i < clientList.length; i++ )
+	{
+		output.push(clientList[i].getAPIData());
+	}
+	return output;
+}
+
 exports.getClient = getClient;
 exports.addAccessLevel = addAccessLevel;
 exports.getAccessLevel = getAccessLevel;
+exports.getClientAPIData = getClientAPIData;
+exports.getAccessLevels = getAccessLevels;

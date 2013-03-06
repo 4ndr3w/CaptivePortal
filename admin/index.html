@@ -1,0 +1,46 @@
+<html>
+<head>
+	<title>Admin</title>
+	<script type="text/javascript" src="/admin/jquery.min.js"></script>
+	<script type="text/javascript">
+	
+	var accessLists;
+	
+	function generateListDropdown(selected)
+	{
+		output = "<select>";
+		for ( i = 0; i < accessLists.length; i++ )
+		{
+			if ( selected == accessLists[i].level )
+				output += "<option selected=\"selected\" value=\""+accessLists[i].level+"\">"+accessLists[i].friendlyName+"</option>";
+			else
+				output += "<option value=\""+accessLists[i].level+"\">"+accessLists[i].friendlyName+"</option>";
+		}
+		output += "</select>";
+		return output;
+	}
+	
+	$.getJSON("/admin/accessList", function(aLists)
+	{
+		accessLists = aLists;
+		
+		setInterval(function()
+		{
+			$.getJSON("/admin/clientList", function(data)
+			{
+				output = "<h3>Clients</h3>";
+				for ( i = 0; i < data.length; i++ )
+				{
+					output += data[i].ip+" - Access Level "+generateListDropdown(data[i].accessLevel.level);
+				}
+				document.getElementById("data").innerHTML = output;
+			});
+		}, 1000);
+		
+	});
+	</script>
+</head>
+<body>
+	<div id="data">	
+	</div>
+</body>

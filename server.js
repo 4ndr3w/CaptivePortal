@@ -2,15 +2,14 @@ var proxy = require("./Proxy");
 var clientRegistry = require("./ClientRegistry");
 var express = require("express");
 var app = express();
+var server = require("http").createServer(app);
 
 proxy.init(function(IP, URL)
 {
 	return clientRegistry.getClient(IP).handleRequest(URL);
 });
 
-
-
-clientRegistry.addAccessLevel(1).addURL("apple.com");
+clientRegistry.addAccessLevel(1, "Normal").addURL("apple.com");
 
 app.get("/portal", function(req, res)
 {
@@ -23,7 +22,15 @@ app.get("/portal", function(req, res)
 	res.send(output);
 });
 
-
+app.use("/admin", express.static("./admin"));
+app.get("/admin/clientList", function(req,res)
+{
+	res.json(clientRegistry.getClientAPIData());
+});
+app.get("/admin/accessList", function(req,res)
+{
+	res.json(clientRegistry.getAccessLevels());
+});
 
 app.get("/accessLevel", function(req, res)
 {
@@ -53,4 +60,4 @@ app.get("/authenticate", function(req, res)
 });
 
 
-app.listen(80);
+server.listen(80);
