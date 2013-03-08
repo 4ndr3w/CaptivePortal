@@ -6,13 +6,23 @@
 	
 	var accessLists;
 	
-	function generateListDropdown(selected)
+	function updateLevel(ip)
 	{
-		output = "<select>";
+		alert("change");
+		nl = document.getElementById(ip+"level").value;
+		$.get("/admin/updatelevel", {
+			ip: ip,
+			newlevel: nl
+		});
+	}
+	
+	function generateListDropdown(ip, selected)
+	{
+		output = "<select id=\""+ip+"level\" onchange=\"updateLevel('"+ip+"')\">";
 		for ( i = 0; i < accessLists.length; i++ )
 		{
 			if ( selected == accessLists[i].level )
-				output += "<option selected=\"selected\" value=\""+accessLists[i].level+"\">"+accessLists[i].friendlyName+"</option>";
+				output += "<option  selected=\"selected\" value=\""+accessLists[i].level+"\">"+accessLists[i].friendlyName+"</option>";
 			else
 				output += "<option value=\""+accessLists[i].level+"\">"+accessLists[i].friendlyName+"</option>";
 		}
@@ -31,11 +41,11 @@
 				output = "<h3>Clients</h3>";
 				for ( i = 0; i < data.length; i++ )
 				{
-					output += data[i].ip+" - Access Level "+generateListDropdown(data[i].accessLevel.level);
+					output += data[i].ip+" - Access Level "+generateListDropdown(data[i].ip, data[i].accessLevel.level);
 				}
 				document.getElementById("data").innerHTML = output;
 			});
-		}, 1000);
+		}, 5000);
 		
 	});
 	</script>

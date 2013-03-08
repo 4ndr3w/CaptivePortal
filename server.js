@@ -32,6 +32,12 @@ app.get("/admin/accessList", function(req,res)
 	res.json(clientRegistry.getAccessLevels());
 });
 
+app.get("/admin/updatelevel", function(req,res)
+{
+	clientRegistry.getClient(req.param("ip")).changeAccessLevel(req.param("newlevel"));
+	res.send("OK");
+});
+
 app.get("/accessLevel", function(req, res)
 {
 	level = clientRegistry.getClient(req.ip).getAccessLevel();
