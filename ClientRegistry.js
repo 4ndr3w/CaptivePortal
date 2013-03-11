@@ -1,3 +1,5 @@
+var fs = require("fs");
+
 clientList = new Array();
 accessLevels = new Array();
 
@@ -44,7 +46,6 @@ function AccessLevel(level, friendlyName)
 		return {accessList:this.accessList, level:this.level, friendlyName:this.friendlyName};
 	}
 }
-accessLevels.push(new AccessLevel(0, "Unauthenticated"));
 
 function getAccessLevel(level)
 {
@@ -78,19 +79,25 @@ function Client(IP, accessLevel, expire)
 	this.IP = IP;
 	
 	if ( expire == undefined )
-		expire = 600000; // 10 min
+		expire = 1800000; // 30 min
+	this.expire = expire;	
 		
-		
-	thisPtr = this;
-	this.expireTimeout = setTimeout(function()
-	{
-		thisPtr.changeAccessLevel(0);
-	}, expire);
-	
 	this.changeAccessLevel = function(level)
 	{
 		this.myAccessLevel = getAccessLevel(level);
+		this.resetTimer();
 		console.log("Access level of "+this.getIP()+" is now at "+level);
+	}
+	
+	this.resetTimer = function()
+	{
+		if ( this.myAccesslevel != undefined )
+			clearTimeout(this.myAccesslevel);
+		thisPtr = this;
+		this.expireTimeout = setTimeout(function()
+		{
+			thisPtr.changeAccessLevel(0);
+		}, this.expire);
 	}
 	
 	this.handleRequest = function(URL)
@@ -136,8 +143,34 @@ function getClientAPIData()
 	return output;
 }
 
+function reload()
+{
+	accessLevels = new Array();
+	accessLevels.push(new AccessLevel(0, "Unauthenticated"));
+	fs.readdir("./accessLists", function(err, files)
+	{
+		for ( f = 0; f < files.length; f++ )
+		{
+			level = parseInt(files[f]);
+			fs.readFile("./accessLists/"+files[f], function(err, data)
+			{
+				console.log("Loaded accessLevel "+level);
+				data = data.toString().split("\n");
+				
+				newLevel = addAccessLevel(parseInt(level), data[0]);
+				for ( i = 1; i < data.length; i++ )
+				{
+					console.log("Added URL "+data[i]+" to "+newLevel.level);
+					newLevel.addURL(data[i].trim());
+				}	
+			});
+		}
+	});
+}
+
 exports.getClient = getClient;
 exports.addAccessLevel = addAccessLevel;
+exports.reload = reload;
 exports.getAccessLevel = getAccessLevel;
 exports.getClientAPIData = getClientAPIData;
 exports.getAccessLevels = getAccessLevels;

@@ -6,30 +6,39 @@
 	
 	var accessLists;
 	
-	function updateLevel(ip)
+	function updateLevel(ip, nl)
 	{
-		alert("change");
-		nl = document.getElementById(ip+"level").value;
 		$.get("/admin/updatelevel", {
 			ip: ip,
 			newlevel: nl
 		});
 	}
 	
-	function generateListDropdown(ip, selected)
+	function reloadAccessLevels()
 	{
-		output = "<select id=\""+ip+"level\" onchange=\"updateLevel('"+ip+"')\">";
-		for ( i = 0; i < accessLists.length; i++ )
-		{
-			if ( selected == accessLists[i].level )
-				output += "<option  selected=\"selected\" value=\""+accessLists[i].level+"\">"+accessLists[i].friendlyName+"</option>";
-			else
-				output += "<option value=\""+accessLists[i].level+"\">"+accessLists[i].friendlyName+"</option>";
-		}
-		output += "</select>";
-		return output;
+		$.get("/admin/reloadAccessLevels");
 	}
 	
+	function getFriendlyNameForAccessLevel(level)
+	{
+		for ( i = 0; i < accessLists.length; i++ )
+		{
+			if ( level == accessLists[i].level )
+				return accessLists[i].friendlyName;
+		}
+		return "Unknown";
+	}
+	
+	function dropClient(ip)
+	{
+		updateLevel(ip, 0);
+	}
+	
+	function privilegePass(ip)
+	{
+		updateLevel(ip, 2);
+	}
+
 	$.getJSON("/admin/accessList", function(aLists)
 	{
 		accessLists = aLists;
@@ -41,11 +50,11 @@
 				output = "<h3>Clients</h3>";
 				for ( i = 0; i < data.length; i++ )
 				{
-					output += data[i].ip+" - Access Level "+generateListDropdown(data[i].ip, data[i].accessLevel.level);
+					output += data[i].ip+" - Access Level: "+data[i].accessLevel.level+" - <a href='#' onClick=\"dropClient('"+data[i].ip+"')\">Drop</a> - <a href='#' onClick=\"privilegePass('"+data[i].ip+"')\">One-time Pass</a>";
 				}
 				document.getElementById("data").innerHTML = output;
 			});
-		}, 5000);
+		}, 1000);
 		
 	});
 	</script>
