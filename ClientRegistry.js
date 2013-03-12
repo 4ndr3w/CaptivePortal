@@ -13,10 +13,9 @@ function AccessLevel(level, friendlyName)
 	{
 		for ( i = 0; i < this.accessList.length; i++ )
 		{
-			if ( this.accessList[i].search(url) != -1 )
-			{
+			if ( url.search(this.accessList[i]) != -1 )
 				return !this.allowUnknown;
-			}
+			
 		}
 		return this.allowUnknown;
 	}
@@ -143,6 +142,11 @@ function getClientAPIData()
 	return output;
 }
 
+function handleFile()
+{
+	
+}
+
 function reload()
 {
 	accessLevels = new Array();
@@ -152,18 +156,22 @@ function reload()
 		for ( f = 0; f < files.length; f++ )
 		{
 			level = parseInt(files[f]);
-			fs.readFile("./accessLists/"+files[f], function(err, data)
+			(function(level)
 			{
-				console.log("Loaded accessLevel "+level);
-				data = data.toString().split("\n");
-				
-				newLevel = addAccessLevel(parseInt(level), data[0]);
-				for ( i = 1; i < data.length; i++ )
+				var thisLevel = level;
+				fs.readFile("./accessLists/"+files[f], function(err, data)
 				{
-					console.log("Added URL "+data[i]+" to "+newLevel.level);
-					newLevel.addURL(data[i].trim());
-				}	
-			});
+					console.log("Loaded accessLevel "+thisLevel);
+					data = data.toString().trim().split("\n");
+				
+					newLevel = addAccessLevel(thisLevel, data[0]);
+					for ( i = 1; i < data.length; i++ )
+					{
+						console.log("Added URL "+data[i]+" to "+newLevel.level);
+						newLevel.addURL(data[i].toString().trim());
+					}	
+				});
+			})(level);
 		}
 	});
 }
