@@ -142,11 +142,6 @@ function getClientAPIData()
 	return output;
 }
 
-function handleFile()
-{
-	
-}
-
 function reload()
 {
 	accessLevels = new Array();
