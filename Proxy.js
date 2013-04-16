@@ -7,6 +7,7 @@ function init(approvalCallback)
 	  
 	  if ( request.url.search(myIP) != -1 || approvalCallback(request.connection.remoteAddress, request.url) )
 	  {
+		  console.log(request.url);
 		  var options = {
 			  host: request.headers['host'],
 			  port: 80,
@@ -30,6 +31,7 @@ function init(approvalCallback)
 			  
 			  res.on("error",function(){
 				  console.log("Request failed");
+				  response.end();
 			  });
 			  request.on("data", function(chunk)
 			  {
@@ -42,6 +44,10 @@ function init(approvalCallback)
 			  });
 	  	  });
 		  proxyReq.end();
+		  proxyReq.on("error",function(e){
+			  console.log("Request failed "+e);
+			  response.end();
+		  });
 		  
 		  
 	  }
