@@ -1,0 +1,20 @@
+<html>
+<head>
+	<title>Portal</title>
+</head>
+<body>
+	{{? it.accessLevel == 0}}
+	<a href='/authenticate'>Click here to authenticate.</a>
+	{{??}}
+	You are authenticated with access level: {{=it.accessLevel}}
+	{{?}}
+	<br><br>
+
+	What sites can you access?
+	<div id="accessList">
+		{{~it.siteList :value:index}}
+		{{=value}}<br>
+		{{~}}
+		
+	</div>
+</body>

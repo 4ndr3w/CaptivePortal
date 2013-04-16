@@ -3,7 +3,9 @@ var clientRegistry = require("./ClientRegistry");
 var express = require("express");
 var app = express();
 var server = require("http").createServer(app);
-
+var dot = require('dot')
+var fs = require('fs')
+var messages = new Array();
 
 clientRegistry.reload();
 
@@ -14,18 +16,12 @@ proxy.init(function(IP, URL)
 });
 
 
-//clientRegistry.addAccessLevel(1, "Normal").addURL("apple.com");
-//clientRegistry.addAccessLevel(2, "Pass");
+var portalTemplate = dot.template(fs.readFileSync("portal.html"));
 
 app.get("/portal", function(req, res)
 {
-	output = "";
 	level = clientRegistry.getClient(req.ip).getAccessLevel();
-	if ( level == 0 )
-		output += "You are not authenticated. <a href='/authenticate'>Click here to authenticate.</a>";
-	else 
-		output += "You are authenticated with access level "+level;
-	res.send(output);
+	res.send(dot.template(fs.readFileSync("portal.html"))({accessLevel:level, siteList: clientRegistry.getAccessLevel(level).getAccessList()}));
 });
 
 app.use("/admin", express.static("./admin"));
